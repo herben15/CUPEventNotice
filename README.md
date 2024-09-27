@@ -82,3 +82,7 @@ nohup python3 fecth.py &
 ## 接收处理
 
 当邮件接收到程序异常错误时，一般是你的cookies更新了，需要你手动更新后再次运行程序。【目前不知道刷新时间，若刷新时间过快，我会考虑自动更新cookies】
+
+## 个人博客
+
+[herben' blog](http://herben.top/)
