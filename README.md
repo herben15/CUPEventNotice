@@ -34,7 +34,7 @@ pip install yagmail
 
 ### 修改邮件
 
-在`send_mes.py`文件中修改邮件，具体是`send_username`修改为你自身的邮件账号，`receiver_1`修改为接收信息的邮件账号，`authorization`为授权码，具体看下面。
+在`send_mes.py`文件中修改邮件，具体是`send_username`修改为你自身的邮件账号，`receiver_1`修改为接收信息的邮件账号，`authorization`为授权码，具体看下面。为了防止邮箱发送限制，在`send_mes.py`下面修改成你的备用账号，以通知你【可能也用不上，一天12封】
 
 #### 获取authorization
 
@@ -44,9 +44,17 @@ pip install yagmail
 
 ### 修改请求头和cookies
 
-请访问网页（[点我](https://sct.cup.edu.cn/activitynew/mobile/activity/list)），若需要登录则先登录（登录后再访问）——> 右击检查（或者F12）——> 点击网络 ——> 点击网页中的德育 ——> 点击检查中的list ——> 点击标头 ——> 找到请求标头下的**User-Agent**（需要复制）——> 点击上方的**Cookies** —— > 下方有两个值
+请访问网页https://sct.cup.edu.cn/activitynew/mobile/activity/list，若需要登录则先登录（登录后再访问）——> 右击检查（或者F12）——> 点击网络 ——> 点击网页中的德育 ——> 点击检查中的list ——> 点击标头 ——> 找到请求标头下的**User-Agent**（需要复制）——> 点击上方的**Cookies** —— > 下方有两个值
 
-根据上面的结果，修改`fecth.py`中的全局变量`headers`和`cookies`，headers中的User-Agent需要修改为你的值，Cookies中的两个值对应修改为你的值
+根据上面的结果，修改`fecth.py`和`get_cookies.py`中的全局变量`headers`和`cookies`，headers中的User-Agent需要修改为你的值，Cookies中的两个值对应修改为你的值
+
+`get_cookies.py`中的USERNAME和PASSWORD换成你的账号和密码
+
+---补充----
+
+第二个cookie有效期太短了，我各种查找终于知道如何获取第二个cookie了。
+
+首先get访问`https://sso.cup.edu.cn/login?service=https%3A%2F%2Fsct.cup.edu.cn%2Fucenter%2Findex%2Fsaveticket`获取一个会话级cookie，然后get带上这个cookie同样访问这个url，就可以得到excution值，然后向这给网页发送post请求，然后它会从定位到一个saveticket，这就可以获取到第二个cookie了。
 
 
 
@@ -82,6 +90,8 @@ nohup python3 fecth.py &
 ## 接收处理
 
 当邮件接收到程序异常错误时，一般是你的cookies更新了，需要你手动更新后再次运行程序。【目前不知道刷新时间，若刷新时间过快，我会考虑自动更新cookies】
+
+
 
 ## 个人博客
 
