@@ -31,6 +31,7 @@ cookies = {
 }
 
 URL = 'https://sct.cup.edu.cn/activitynew/mobile/activity/list'
+BASIC_URL = 'https://sct.cup.edu.cn/activitynew/mobile/activity/info?id='
 
 classification = [13, 26, 14, 15, 16, 23, 24, 17, 25, 22, 21, 20]
 classification_title = {
@@ -51,8 +52,13 @@ classification_title = {
 def log(message):
     now = datetime.now()
     with open('log.txt', 'a', encoding='utf-8') as file:
-        file.write(f"{now}: \n{message}\n")
+        file.write(f"{now}: \n{message}\n\n")
 
+def updata_activites():
+    with open('activites.txt','a',encoding='utf-8') as file:
+        for item in new_activities_id:
+            file.write(f' {item}')
+    new_activities_id.clear()
 
 def fetch_activities():
     session = requests.Session()
@@ -71,9 +77,10 @@ def fetch_activities():
                 if 'data' in json_data and 'compList' in json_data['data']:
                     for item in json_data['data']['compList']:
                         if item['id'] not in existing_activities_id:
-                            new_activity = {'title': item['title'], 'classificationtitle': item['classificationtitle']}
+                            new_activity = {'title': item['title'], 'classificationtitle': item['classificationtitle'], 'id' : item['id']}
                             activities.append(new_activity)
                             existing_activities_id.add(item['id'])
+                            new_activities_id.add(item['id'])
                 else:
                     log("返回数据中没有活动列表")
                     return False  # 返回False表示未找到活动
@@ -97,10 +104,11 @@ def fetch_activities():
     if not log_content:
         log_content = "无新活动"
 
-    log("新活动日志：\n"+log_content)
+    log("新活动日志："+log_content)
 
     if activities:  # 如果有新活动，发送消息
-        send_mes.send([f"类型：{item['classificationtitle']} 标题：{item['title']}" for item in activities])
+        send_mes.send(f"{item['classificationtitle']}\t<a href={BASIC_URL}'{item['id']}'>{item['title']}</a>\n" for item in activities)
+        updata_activites()
 
     return True  # 返回True表示成功
 
@@ -132,12 +140,6 @@ def init():
         sys.exit()
 
 
-def updata_activites():
-    with open('activites.txt','a',encoding='utf-8') as file:
-        for item in new_activities_id:
-            file.write(f' {item}')
-
-
 def job():
     reslut=fetch_activities()
     if not reslut:  #获取失败，强制退出程序
@@ -152,6 +154,7 @@ def job():
                 send_error(["异常退出，请检查日志文件解决问题"])
                 updata_activites()  # 更新数据，以便下次启动重复发送数据
                 sys.exit()
+            log(f"新的cookie为：{res}")
         else:
             log("cookie获取错误")
             send_error(["cookie获取错误，请尽快检查程序"])
